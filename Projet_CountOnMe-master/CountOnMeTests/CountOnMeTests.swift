@@ -8,46 +8,120 @@
 
 import XCTest
 @testable import CountOnMe
-// swiftlint:disable line_length
 
 class SimpleCalcUITests: XCTestCase {
-    var calculation: Calculation!
+    var calculator: Calculation!
+    var mockPresenter: MockPresenter!
 
     override func setUp() {
         super.setUp()
-        calculation = Calculation()
+        calculator = Calculation()
+        mockPresenter = MockPresenter()
+        calculator.delegate = mockPresenter
     }
 
     // Testing the four types of operation
-    func testGivenOperationIsOnePlusOne_WhenHittingEqualButton_ThenResultShouldBeTwo() {
-        calculation.calculationText = "1 + 1"
-        calculation.equal()
-        XCTAssertTrue(calculation.calculationText == "1 + 1 = 2.0")
+    func testAddition() {
+        calculator.addNumber(number: "1")
+        calculator.addOperator(operatorToAdd: "+")
+        calculator.addNumber(number: "1")
+        calculator.calculate()
+        XCTAssertEqual("1 + 1 = 2.0", mockPresenter.presentedCalculation)
+        XCTAssertNil(mockPresenter.raisedErrorTitle)
     }
 
-    func testGivenOperationIsOneMinusOne_WhenHittingEqualButton_ThenResultShouldBeZero() {
-        calculation.calculationText = "1 - 1"
-        calculation.equal()
-        XCTAssertTrue(calculation.calculationText == "1 - 1 = 0.0")
+    func testSubstraction() {
+        calculator.addNumber(number: "1")
+        calculator.addOperator(operatorToAdd: "-")
+        calculator.addNumber(number: "1")
+        calculator.calculate()
+        XCTAssertEqual("1 - 1 = 0.0", mockPresenter.presentedCalculation)
+        XCTAssertNil(mockPresenter.raisedErrorTitle)
     }
 
-    func testGivenOperationIsTwoTimesTwo_WhenHittingEqualButton_ThenResultShouldBeFour() {
-        calculation.calculationText = "2 × 2"
-        calculation.equal()
-        XCTAssertTrue(calculation.calculationText == "2 × 2 = 4.0")
+    func testMultiplication() {
+        calculator.addNumber(number: "2")
+        calculator.addOperator(operatorToAdd: "×")
+        calculator.addNumber(number: "2")
+        calculator.calculate()
+        XCTAssertEqual("2 × 2 = 4.0", mockPresenter.presentedCalculation)
+        XCTAssertNil(mockPresenter.raisedErrorTitle)
     }
 
-    func testGivenOperationIsTwoDividedByTwo_WhenHittingEqualButton_ThenResultShouldBeOne() {
-        calculation.calculationText = "2 ÷ 2"
-        calculation.equal()
-        XCTAssertTrue(calculation.calculationText == "2 ÷ 2 = 1.0")
+    func testDivision() {
+        calculator.addNumber(number: "2")
+        calculator.addOperator(operatorToAdd: "÷")
+        calculator.addNumber(number: "2")
+        calculator.calculate()
+        XCTAssertEqual("2 ÷ 2 = 1.0", mockPresenter.presentedCalculation)
+        XCTAssertNil(mockPresenter.raisedErrorTitle)
     }
 
-    //Testing the priority of operation
-    func testGivenOperationIsOnePlusTwoTimesThreeDividedByFourMinusFive_WhenHittingEqualButton_ThenresultShouldBeMinusTwoPointFive() {
-        calculation.calculationText = "1 + 2 × 3 ÷ 4 - 5"
-        calculation.equal()
-        XCTAssertTrue(calculation.calculationText == "1 + 2 × 3 ÷ 4 - 5 = -2.5")
+    // Testing the priority of operation
+    func testShouldPerformCalculationInOrderPriority() {
+        calculator.addNumber(number: "1")
+        calculator.addOperator(operatorToAdd: "+")
+        calculator.addNumber(number: "2")
+        calculator.addOperator(operatorToAdd: "×")
+        calculator.addNumber(number: "3")
+        calculator.addOperator(operatorToAdd: "÷")
+        calculator.addNumber(number: "4")
+        calculator.addOperator(operatorToAdd: "-")
+        calculator.addNumber(number: "5")
+        calculator.calculate()
+        XCTAssertEqual("1 + 2 × 3 ÷ 4 - 5 = -2.5", mockPresenter.presentedCalculation)
+        XCTAssertNil(mockPresenter.raisedErrorTitle)
+    }
+
+    // Testing the error handling
+    func testExpressionHaveEnoughElement() {
+        calculator.addOperator(operatorToAdd: "+")
+        calculator.addNumber(number: "1")
+        calculator.calculate()
+        XCTAssertEqual(mockPresenter.raisedErrorTitle, "Erreur")
+        XCTAssertEqual(mockPresenter.raisedErrorMessage, "Démarrez un nouveau calcul !")
+        XCTAssertEqual("", mockPresenter.presentedCalculation)
+
+    }
+
+    func testShouldPreventIncorrectExpressionAndWipeContent() {
+        calculator.addNumber(number: "1")
+        calculator.addOperator(operatorToAdd: "+")
+        XCTAssertEqual("1 + ", mockPresenter.presentedCalculation)
+        calculator.calculate()
+        XCTAssertEqual(mockPresenter.raisedErrorTitle, "Erreur")
+        XCTAssertEqual(mockPresenter.raisedErrorMessage, "Entrez une expression correcte !")
+        XCTAssertEqual("", mockPresenter.presentedCalculation)
+    }
+
+    func testShouldPreventDivideByZero() {
+        calculator.addNumber(number: "1")
+        calculator.addOperator(operatorToAdd: "÷")
+        calculator.addNumber(number: "0")
+        calculator.calculate()
+        XCTAssertEqual(mockPresenter.raisedErrorTitle, "Erreur")
+        XCTAssertEqual(mockPresenter.raisedErrorMessage, "Impossible de diviser par 0")
+        XCTAssertEqual("1 ÷ ", mockPresenter.presentedCalculation)
+
+    }
+
+    func testShouldIgnoreMultiplesOperators() {
+        calculator.addNumber(number: "1")
+        calculator.addOperator(operatorToAdd: "+")
+        calculator.addOperator(operatorToAdd: "+")
+        XCTAssertEqual(mockPresenter.raisedErrorTitle, "Erreur")
+        XCTAssertEqual(mockPresenter.raisedErrorMessage, "Un operateur est déja mis !")
+        XCTAssertEqual("1 + ", mockPresenter.presentedCalculation)
+    }
+
+    func testShouldIgnoreMultipleCalculateCall() {
+        calculator.addNumber(number: "1")
+        calculator.addOperator(operatorToAdd: "+")
+        calculator.addNumber(number: "1")
+        calculator.calculate()
+        calculator.calculate()
+        XCTAssertEqual("1 + 1 = 2.0", mockPresenter.presentedCalculation)
+        XCTAssertNil(mockPresenter.raisedErrorTitle)
     }
 
 }

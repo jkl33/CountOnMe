@@ -10,16 +10,13 @@ import Foundation
 import UIKit
 protocol CalculationProtocol: AnyObject {
     func didRaiseError(title: String, message: String)
-}
-
-protocol DisplayProtocol: AnyObject {
     func updateDisplayedCalculation(displayedCalculation: String)
 }
-typealias CommonProtocol = CalculationProtocol & DisplayProtocol
-class Calculation {
-    weak var delegate: CommonProtocol?
 
-    var calculationText = ""
+class Calculation {
+    weak var delegate: CalculationProtocol?
+
+    private var calculationText = ""
     var elements: [String] {
         return calculationText.split(separator: " ").map { "\($0)" }
     }
@@ -38,7 +35,7 @@ class Calculation {
     }
 
     var expressionHaveResult: Bool {
-        return calculationText.firstIndex(of: "=") != nil
+        return elements.contains("=")
     }
 
     func addNumber(number: String) {
@@ -60,20 +57,34 @@ class Calculation {
             calculationText.append(" \(operatorToAdd) ")
             delegate?.updateDisplayedCalculation(displayedCalculation: calculationText)
         } else {
-            delegate?.didRaiseError(title: "Error", message: "Un operateur est déja mis !")
+            delegate?.didRaiseError(title: "Erreur", message: "Un operateur est déja mis !")
         }
     }
 
-    func equal() {
+    func verifyCalculation() -> Bool {
         guard expressionIsCorrect else {
-            delegate?.didRaiseError(title: "Error", message: "Entrez une expression correcte !")
-            return
+            delegate?.didRaiseError(title: "Erreur", message: "Entrez une expression correcte !")
+            calculationText = ""
+            delegate?.updateDisplayedCalculation(displayedCalculation: calculationText)
+            return false
         }
         guard expressionHaveEnoughElement else {
-            delegate?.didRaiseError(title: "Error", message: "Démarrez un nouveau calcul !")
+            delegate?.didRaiseError(title: "Erreur", message: "Démarrez un nouveau calcul !")
+            calculationText = ""
+            delegate?.updateDisplayedCalculation(displayedCalculation: calculationText)
+            return false
+        }
+        if expressionHaveResult {
+            // improvement: could raise an error to let the delegate choose either to handle it or not
+            return false
+        }
+        return true
+    }
+
+    func calculate() {
+        guard verifyCalculation() else {
             return
         }
-
         // Create local copy of operations
         var operation = elements
 
@@ -96,11 +107,15 @@ class Calculation {
             case "-": result = left - right
             case "×": result = left * right
             case "÷": guard right != 0 else {
-                delegate?.didRaiseError(title: "Error", message: "Can't divide by 0")
+                delegate?.didRaiseError(title: "Erreur", message: "Impossible de diviser par 0")
+                calculationText.removeLast()
+                delegate?.updateDisplayedCalculation(displayedCalculation: calculationText)
                 return
             }
                 result = left / right
-            default: fatalError("Unknown operator !")
+            default:
+                delegate?.didRaiseError(title: "Erreur", message: "Operateur non reconnu '\(operand)'")
+                return
             }
 
             operation.insert("\(result)", at: index + 2)

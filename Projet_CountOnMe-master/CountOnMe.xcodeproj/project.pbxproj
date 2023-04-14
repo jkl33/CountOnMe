@@ -14,6 +14,7 @@
 		1FA43BDD224E569A00F565CB /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1FA43BDB224E569A00F565CB /* LaunchScreen.storyboard */; };
 		8431E0782842675C005043D6 /* Calculation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8431E0772842675C005043D6 /* Calculation.swift */; };
 		84A6EDCE28DA3E4F00CA42D3 /* CountOnMeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84A6EDCD28DA3E4F00CA42D3 /* CountOnMeTests.swift */; };
+		BC70134929C4D02C00C19063 /* MockTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC70134729C4D02900C19063 /* MockTest.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -37,6 +38,7 @@
 		8431E0772842675C005043D6 /* Calculation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Calculation.swift; sourceTree = "<group>"; };
 		84A6EDCB28DA3E4F00CA42D3 /* CountOnMeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CountOnMeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		84A6EDCD28DA3E4F00CA42D3 /* CountOnMeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CountOnMeTests.swift; sourceTree = "<group>"; };
+		BC70134729C4D02900C19063 /* MockTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockTest.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -124,6 +126,7 @@
 		84A6EDCC28DA3E4F00CA42D3 /* CountOnMeTests */ = {
 			isa = PBXGroup;
 			children = (
+				BC70134729C4D02900C19063 /* MockTest.swift */,
 				84A6EDCD28DA3E4F00CA42D3 /* CountOnMeTests.swift */,
 			);
 			path = CountOnMeTests;
@@ -264,6 +267,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				84A6EDCE28DA3E4F00CA42D3 /* CountOnMeTests.swift in Sources */,
+				BC70134929C4D02C00C19063 /* MockTest.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

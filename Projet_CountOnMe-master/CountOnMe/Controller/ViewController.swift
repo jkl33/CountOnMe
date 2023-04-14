@@ -17,11 +17,11 @@ class ViewController: UIViewController {
     }
 
     // Instantiating Calculation class
-    let calc = Calculation()
+    let calculator = Calculation()
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        calc.delegate = self
+        calculator.delegate = self
     }
 
     // View actions
@@ -29,27 +29,25 @@ class ViewController: UIViewController {
         guard let numberText = sender.title(for: .normal) else {
             return
         }
-        calc.addNumber(number: numberText)
+        calculator.addNumber(number: numberText)
     }
 
     @IBAction func tappedOperatorButton (_ sender: UIButton) {
-        calc.addOperator(operatorToAdd: sender.titleLabel!.text!)
+        calculator.addOperator(operatorToAdd: sender.titleLabel!.text!)
     }
 
     @IBAction func tappedEqualButton(_ sender: UIButton) {
-        calc.equal()
+        calculator.calculate()
     }
 }
 
-// Delegate to handle the displaying of error message in the console
+// Delegate to handle the displaying of error message in the console and the displaying of the operation on textView
 extension ViewController: CalculationProtocol {
     func didRaiseError(title: String, message: String) {
-        print(message)
-    }
-}
+        let alertVC = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        alertVC.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
+        return self.present(alertVC, animated: true, completion: nil)    }
 
-// Delegate to handle the displaying of the operation on textView
-extension ViewController: DisplayProtocol {
     func updateDisplayedCalculation(displayedCalculation: String) {
         textView.text = displayedCalculation
     }
