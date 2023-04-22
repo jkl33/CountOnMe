@@ -124,4 +124,29 @@ class SimpleCalcUITests: XCTestCase {
         XCTAssertNil(mockPresenter.raisedErrorTitle)
     }
 
+    func testShouldWipeContentWhenAllClearIsPressed() {
+        calculator.addNumber(number: "1")
+        calculator.addOperator(operatorToAdd: "+")
+        calculator.addNumber(number: "1")
+        calculator.calculate()
+        calculator.allClear()
+        XCTAssertEqual("", mockPresenter.presentedCalculation)
+        XCTAssertNil(mockPresenter.raisedErrorTitle)
+    }
+
+    func testShouldPreventInputingNumberTooBig() {
+        calculator.addNumber(number: "1")
+        calculator.addNumber(number: "2")
+        calculator.addNumber(number: "3")
+        calculator.addNumber(number: "4")
+        calculator.addNumber(number: "5")
+        calculator.addNumber(number: "6")
+        calculator.addNumber(number: "7")
+        calculator.addNumber(number: "8")
+        calculator.addNumber(number: "9")
+        calculator.addNumber(number: "1")
+        XCTAssertEqual("123456789", mockPresenter.presentedCalculation)
+        XCTAssertEqual(mockPresenter.raisedErrorTitle, "Erreur")
+        XCTAssertEqual(mockPresenter.raisedErrorMessage, "Nombre trop grand !")
+    }
 }

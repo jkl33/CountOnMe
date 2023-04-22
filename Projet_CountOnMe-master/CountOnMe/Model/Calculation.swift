@@ -4,7 +4,6 @@
 //
 //  Created by admin on 28/05/2022.
 //  Copyright © 2022 Vincent Saluzzo. All rights reserved.
-//
 
 import Foundation
 import UIKit
@@ -38,6 +37,14 @@ class Calculation {
         return elements.contains("=")
     }
 
+    var numberIsNotTooBig: Bool {
+        if let nbr = elements.last?.count {
+            return nbr < 10
+        } else {
+            return false
+        }
+    }
+
     func addNumber(number: String) {
         if expressionHaveResult {
             calculationText = ""
@@ -45,13 +52,21 @@ class Calculation {
         }
         calculationText.append(number)
         delegate?.updateDisplayedCalculation(displayedCalculation: calculationText)
+        guard numberIsNotTooBig else {
+            delegate?.didRaiseError(title: "Erreur", message: "Nombre trop grand !")
+            calculationText.removeLast()
+            delegate?.updateDisplayedCalculation(displayedCalculation: calculationText)
+            return
+        }
     }
 
     func addOperator(operatorToAdd: String) {
 
         // The user can iterate on his previous operation by adding an operator after the result of the previous operation
         if expressionHaveResult {
-            calculationText.removeSubrange(calculationText.startIndex...calculationText.firstIndex(of: "=")!)
+            if let myIndex = calculationText.firstIndex(of: "=") {
+                calculationText.removeSubrange(calculationText.startIndex...myIndex)
+            }
         }
         if canAddOperator {
             calculationText.append(" \(operatorToAdd) ")
@@ -59,6 +74,11 @@ class Calculation {
         } else {
             delegate?.didRaiseError(title: "Erreur", message: "Un operateur est déja mis !")
         }
+    }
+
+    func allClear() {
+        calculationText = ""
+        delegate?.updateDisplayedCalculation(displayedCalculation: calculationText)
     }
 
     func verifyCalculation() -> Bool {
@@ -81,6 +101,7 @@ class Calculation {
         return true
     }
 
+    // swiftlint:disable:next cyclomatic_complexity
     func calculate() {
         guard verifyCalculation() else {
             return
@@ -91,17 +112,19 @@ class Calculation {
         // Iterate over operations while an operand still here
         while operation.count > 1 {
             let index: Int
-            let prioritySign = operation.firstIndex(where: { $0 == "×" || $0 == "÷" })
-            if prioritySign != nil {
-                index = prioritySign!
+            if let prioritySign = operation.firstIndex(where: { $0 == "×" || $0 == "÷" }) {
+                index = prioritySign
             } else {
                 index = 1
             }
-            let left = Double(operation[index - 1])!
+            guard let left = Double(operation[index - 1]) else {
+                return
+            }
             let operand = operation[index]
-            let right = Double(operation[index + 1])!
+            guard let right = Double(operation[index + 1]) else {
+                return
+            }
             let result: Double
-
             switch operand {
             case "+": result = left + right
             case "-": result = left - right

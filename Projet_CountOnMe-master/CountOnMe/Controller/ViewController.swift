@@ -32,8 +32,14 @@ class ViewController: UIViewController {
         calculator.addNumber(number: numberText)
     }
 
-    @IBAction func tappedOperatorButton (_ sender: UIButton) {
-        calculator.addOperator(operatorToAdd: sender.titleLabel!.text!)
+    @IBAction func tappedOperatorButton(_ sender: UIButton) {
+        if let myOperatorToAdd = sender.titleLabel?.text {
+            calculator.addOperator(operatorToAdd: myOperatorToAdd)
+        }
+    }
+
+    @IBAction func tappedAllClearButton(_ sender: UIButton) {
+        calculator.allClear()
     }
 
     @IBAction func tappedEqualButton(_ sender: UIButton) {
